@@ -3,7 +3,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Set;
-
 import edu.uci.ics.crawler4j.crawler.*;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
@@ -13,12 +12,13 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import edu.uci.ics.crawler4j.url.WebURL;
 class MyTest {
 	
-	ArrayList<Page> pages = new ArrayList<Page>();
-	Page page = new Page(null);
-	MyCrawler myCrawler = new MyCrawler();
-	HtmlParseData htmlParseData = new HtmlParseData();
-	TextParseData testParseData = new TextParseData();
-	CrawlConfig config;
+	private ArrayList<Page> pages = new ArrayList<Page>();
+	private Page page = new Page(null);
+	private MyCrawler myCrawler = new MyCrawler();
+	private HtmlParseData htmlParseData = new HtmlParseData();
+	private TextParseData testParseData = new TextParseData();
+	private CrawlController controller;
+	private CrawlConfig config;
 	
 	@BeforeEach
 	public void setUp() {
@@ -32,7 +32,7 @@ class MyTest {
 		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
 		RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
 		try {
-			CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
+			controller = new CrawlController(config, pageFetcher, robotstxtServer);
 			myCrawler.init(0, controller);
 			WebURL curURL = new WebURL();
 			curURL.setURL("http://www.dcs.gla.ac.uk/~bjorn/sem20172018/ae2public/Machine_learning.html");
@@ -49,13 +49,28 @@ class MyTest {
 	@Test
 	public void lowerCaseTestForContent() throws Exception{
 		
-		String testString = "Aaa";
+		String testString = "Aaaa";
 		
 		testParseData.setTextContent(testString);
 	
 		assertEquals(testString, testParseData.getTextContent());
 	
 	}
+	
+	@Test
+	public void testForContentWhenTheTextPageHaveNumber() throws Exception {
+		
+		double num = 0.01;
+		
+		String testString = Double.toString(num);
+		
+		testParseData.setTextContent(testString);
+	
+		assertEquals(testString, testParseData.getTextContent());
+		
+
+	}
+	
 	
 	@Test
 	public void lowerCaseTestForHtml() throws Exception{
@@ -113,27 +128,23 @@ class MyTest {
 		
 	}
 	
-//	@Test
-//	public void testDataSet() throws Exception {
-//		
-//		WebURL curURL = new WebURL();
-//		curURL.setURL("http://www.dcs.gla.ac.uk/~bjorn/sem20172018/ae2public/data.txt");
-//		myCrawler.processPage(curURL);
-//		pages = myCrawler.getPages();
-//		page = pages.get(0);
-//		System.err.println(page.getContentData());
-//		TextParseData textParseData = (TextParseData) page.getParseData();
-//		String text = textParseData.getTextContent();
-//		String expected = "hot,0,5,2.3,6;" + 
-//						  "cold,10,5,2,2;" + 
-//				          "cold,1,5,2.4,88;" + 
-//				          "cold,0,15,2,2;" + 
-//				          "hot,2,5,2,42;" + 
-//				          "hot,0,5,22,12;" + 
-//				          "cold,3,2,2,2;";
-//		assertSame(expected, text);
-//		
-//	}
+	@Test
+	public void testForOriginalShouldVisit() throws Exception{
+		
+		WebURL url = new WebURL();
+		
+		url.setURL("http://www.dcs.gla.ac.uk/~bjorn/sem20172018/ae2private/IDA.html");
+		
+		myCrawler.shouldVisit(page, url);
+		
+		WebCrawler webCrawler = new WebCrawler();
+		
+		webCrawler.init(0, controller);
+		
+		webCrawler.shouldVisit(page, url);
+		
+		assertSame(myCrawler.shouldVisit(page, url), webCrawler.shouldVisit(page, url));
+		
+	}
 	
-
 }
